@@ -1,24 +1,29 @@
-# Recurrent Neural Network
+# Redes Neuronales Recurrentes (RNR)
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jan  4 19:32:12 2020
 
+@author: juangabriel
+"""
 
+# Parte 1 - Preprocesado de los datos
 
-# Part 1 - Data Preprocessing
-
-# Importing the libraries
+# Importación de las librerías
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.pyplot as plt
 
-# Importing the training set
-dataset_train = pd.read_csv('Google_Stock_Price_Train.csv')
-training_set = dataset_train.iloc[:, 1:2].values
+# Importar el dataset de entrenamiento
+dataset_train = pd.read_csv("Google_Stock_Price_Train.csv")
+training_set  = dataset_train.iloc[:, 1:2].values
 
-# Feature Scaling
+# Escalado de características
 from sklearn.preprocessing import MinMaxScaler
 sc = MinMaxScaler(feature_range = (0, 1))
 training_set_scaled = sc.fit_transform(training_set)
 
-# Creating a data structure with 60 timesteps and 1 output
+# Crear una estructura de datos con 60 timesteps y 1 salida
 X_train = []
 y_train = []
 for i in range(60, 1258):
@@ -26,56 +31,48 @@ for i in range(60, 1258):
     y_train.append(training_set_scaled[i, 0])
 X_train, y_train = np.array(X_train), np.array(y_train)
 
-# Reshaping
+# Redimensión de los datos
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 
-
-
-# Part 2 - Building the RNN
-
-# Importing the Keras libraries and packages
+# Parte 2 - Construcción de la RNR
 from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers import Dropout
+from keras.layers import Dense, LSTM, Dropout
 
-# Initialising the RNN
+# Inicialización del modelo
 regressor = Sequential()
 
-# Adding the first LSTM layer and some Dropout regularisation
-regressor.add(LSTM(units = 50, return_sequences = True, input_shape = (X_train.shape[1], 1)))
+# Añadir la primera capa de LSTM y la regulariación por Dropout
+regressor.add(LSTM(units = 50, return_sequences = True, input_shape = (X_train.shape[1], 1) ))
 regressor.add(Dropout(0.2))
 
-# Adding a second LSTM layer and some Dropout regularisation
-regressor.add(LSTM(units = 50, return_sequences = True))
+# Añadir la segunda capa de LSTM y la regulariación por Dropout
+regressor.add(LSTM(units = 50, return_sequences = True ))
 regressor.add(Dropout(0.2))
 
-# Adding a third LSTM layer and some Dropout regularisation
-regressor.add(LSTM(units = 50, return_sequences = True))
+# Añadir la tercera capa de LSTM y la regulariación por Dropout
+regressor.add(LSTM(units = 50, return_sequences = True ))
 regressor.add(Dropout(0.2))
 
-# Adding a fourth LSTM layer and some Dropout regularisation
+# Añadir la cuarta capa de LSTM y la regulariación por Dropout
 regressor.add(LSTM(units = 50))
 regressor.add(Dropout(0.2))
 
-# Adding the output layer
+# Añadir la capa de salida
 regressor.add(Dense(units = 1))
 
-# Compiling the RNN
+# Compilar la RNR
 regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
 
-# Fitting the RNN to the Training set
+# Ajustar la RNR al conjunto de entrenamiento
 regressor.fit(X_train, y_train, epochs = 100, batch_size = 32)
 
+# Parte 3 - Ajustar las predicciones y visualizar los resultados
 
-
-# Part 3 - Making the predictions and visualising the results
-
-# Getting the real stock price of 2017
+# Obtener el valor de las acciones reales  de Enero de 2017
 dataset_test = pd.read_csv('Google_Stock_Price_Test.csv')
 real_stock_price = dataset_test.iloc[:, 1:2].values
 
-# Getting the predicted stock price of 2017
+# Obtener la predicción de la acción con la RNR para Enero de 2017
 dataset_total = pd.concat((dataset_train['Open'], dataset_test['Open']), axis = 0)
 inputs = dataset_total[len(dataset_total) - len(dataset_test) - 60:].values
 inputs = inputs.reshape(-1,1)
@@ -85,14 +82,21 @@ for i in range(60, 80):
     X_test.append(inputs[i-60:i, 0])
 X_test = np.array(X_test)
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+
 predicted_stock_price = regressor.predict(X_test)
 predicted_stock_price = sc.inverse_transform(predicted_stock_price)
 
-# Visualising the results
-plt.plot(real_stock_price, color = 'red', label = 'Real Google Stock Price')
-plt.plot(predicted_stock_price, color = 'blue', label = 'Predicted Google Stock Price')
-plt.title('Google Stock Price Prediction')
-plt.xlabel('Time')
-plt.ylabel('Google Stock Price')
+# Visualizar los Resultados
+plt.plot(real_stock_price, color = 'red', label = 'Precio Real de la Accion de Google')
+plt.plot(predicted_stock_price, color = 'blue', label = 'Precio Predicho de la Accion de Google')
+plt.title("Prediccion con una RNR del valor de las acciones de Google")
+plt.xlabel("Fecha")
+plt.ylabel("Precio de la accion de Google")
 plt.legend()
 plt.show()
+
+
+
+
+
+
