@@ -1,6 +1,12 @@
-# AutoEncoders
+# Auto Encoders
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jan 10 09:51:46 2020
 
-# Importing the libraries
+@author: juangabriel
+"""
+
+# Importar las librerías
 import numpy as np
 import pandas as pd
 import torch
@@ -10,39 +16,41 @@ import torch.optim as optim
 import torch.utils.data
 from torch.autograd import Variable
 
-# Importing the dataset
-movies = pd.read_csv('ml-1m/movies.dat', sep = '::', header = None, engine = 'python', encoding = 'latin-1')
-users = pd.read_csv('ml-1m/users.dat', sep = '::', header = None, engine = 'python', encoding = 'latin-1')
-ratings = pd.read_csv('ml-1m/ratings.dat', sep = '::', header = None, engine = 'python', encoding = 'latin-1')
+# Importar el dataset
+movies = pd.read_csv("ml-1m/movies.dat", sep = '::', header = None, engine = 'python', encoding = 'latin-1')
+users  = pd.read_csv("ml-1m/users.dat", sep = '::', header = None, engine = 'python', encoding = 'latin-1')
+ratings  = pd.read_csv("ml-1m/ratings.dat", sep = '::', header = None, engine = 'python', encoding = 'latin-1')
 
-# Preparing the training set and the test set
-training_set = pd.read_csv('ml-100k/u1.base', delimiter = '\t')
-training_set = np.array(training_set, dtype = 'int')
-test_set = pd.read_csv('ml-100k/u1.test', delimiter = '\t')
-test_set = np.array(test_set, dtype = 'int')
+# Preparar el conjunto de entrenamiento y elconjunto de testing
+training_set = pd.read_csv("ml-100k/u1.base", sep = "\t", header = None)
+training_set = np.array(training_set, dtype = "int")
+test_set = pd.read_csv("ml-100k/u1.test", sep = "\t", header = None)
+test_set = np.array(test_set, dtype = "int")
 
-# Getting the number of users and movies
-nb_users = int(max(max(training_set[:,0]), max(test_set[:,0])))
-nb_movies = int(max(max(training_set[:,1]), max(test_set[:,1])))
+# Obtener el número de usuarios y de películas
+nb_users = int(max(max(training_set[:, 0]), max(test_set[:,0])))
+nb_movies = int(max(max(training_set[:, 1]), max(test_set[:, 1])))
 
-# Converting the data into an array with users in lines and movies in columns
+# Convertir los datos en un array X[u,i] con usuarios u en fila y películas i en columna
 def convert(data):
     new_data = []
-    for id_users in range(1, nb_users + 1):
-        id_movies = data[:,1][data[:,0] == id_users]
-        id_ratings = data[:,2][data[:,0] == id_users]
+    for id_user in range(1, nb_users+1):
+        id_movies = data[:, 1][data[:, 0] == id_user]
+        id_ratings = data[:, 2][data[:, 0] == id_user]
         ratings = np.zeros(nb_movies)
-        ratings[id_movies - 1] = id_ratings
+        ratings[id_movies-1] = id_ratings
         new_data.append(list(ratings))
     return new_data
+
 training_set = convert(training_set)
 test_set = convert(test_set)
 
-# Converting the data into Torch tensors
+# Convertir los datos a tensores de Torch
 training_set = torch.FloatTensor(training_set)
 test_set = torch.FloatTensor(test_set)
 
-# Creating the architecture of the Neural Network
+
+# Crear la arquitectura de la Red Neuronal
 class SAE(nn.Module):
     def __init__(self, ):
         super(SAE, self).__init__()
@@ -57,42 +65,47 @@ class SAE(nn.Module):
         x = self.activation(self.fc3(x))
         x = self.fc4(x)
         return x
+
 sae = SAE()
 criterion = nn.MSELoss()
 optimizer = optim.RMSprop(sae.parameters(), lr = 0.01, weight_decay = 0.5)
 
-# Training the SAE
+# Entrenar el SAE
 nb_epoch = 200
-for epoch in range(1, nb_epoch + 1):
+for epoch in range(1, nb_epoch+1):
     train_loss = 0
     s = 0.
     for id_user in range(nb_users):
         input = Variable(training_set[id_user]).unsqueeze(0)
         target = input.clone()
         if torch.sum(target.data > 0) > 0:
-            output = sae(input)
+            output = sae.forward(input)
             target.require_grad = False
             output[target == 0] = 0
             loss = criterion(output, target)
-            mean_corrector = nb_movies/float(torch.sum(target.data > 0) + 1e-10)
+            # la media no es sobre todas las películas, sino sobre las que realmente ha valorado
+            mean_corrector = nb_movies/float(torch.sum(target.data > 0)+1e-10) 
             loss.backward()
-            train_loss += np.sqrt(loss.data[0]*mean_corrector)
+            train_loss += np.sqrt(loss.data*mean_corrector) ## sum(errors) / n_pelis_valoradas
             s += 1.
             optimizer.step()
-    print('epoch: '+str(epoch)+' loss: '+str(train_loss/s))
+    print("Epoch: "+str(epoch)+", Loss: "+str(train_loss/s))
 
-# Testing the SAE
+# Evaluar el conjunto de test en nuestro SAE
 test_loss = 0
 s = 0.
 for id_user in range(nb_users):
     input = Variable(training_set[id_user]).unsqueeze(0)
-    target = Variable(test_set[id_user])
+    target = Variable(test_set[id_user]).unsqueeze(0)
     if torch.sum(target.data > 0) > 0:
-        output = sae(input)
+        output = sae.forward(input)
         target.require_grad = False
         output[target == 0] = 0
         loss = criterion(output, target)
-        mean_corrector = nb_movies/float(torch.sum(target.data > 0) + 1e-10)
-        test_loss += np.sqrt(loss.data[0]*mean_corrector)
+        # la media no es sobre todas las películas, sino sobre las que realmente ha valorado
+        mean_corrector = nb_movies/float(torch.sum(target.data > 0)+1e-10) 
+        test_loss += np.sqrt(loss.data*mean_corrector) ## sum(errors) / n_pelis_valoradas
         s += 1.
-print('test loss: '+str(test_loss/s))
+print("Test Loss: "+str(train_loss/s))
+
+
