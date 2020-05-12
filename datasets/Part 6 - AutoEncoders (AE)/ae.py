@@ -106,6 +106,6 @@ for id_user in range(nb_users):
         mean_corrector = nb_movies/float(torch.sum(target.data > 0)+1e-10) 
         test_loss += np.sqrt(loss.data*mean_corrector) ## sum(errors) / n_pelis_valoradas
         s += 1.
-print("Test Loss: "+str(train_loss/s))
+print("Test Loss: "+str(test_loss/s))
 
 
