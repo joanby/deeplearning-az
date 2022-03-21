@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Importar el data set
+# Importar el data sets
 dataset = pd.read_csv('Churn_Modelling.csv')
 
 X = dataset.iloc[:, 3:13].values
