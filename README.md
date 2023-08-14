@@ -1,5 +1,17 @@
-# Deep Learning de la A a Z: redes neuronales al completo
-## Con Kirill Eremenko, Hadelin de Ponteves y Juan Gabriel Gomila, solo en Udemy
+# Repositorio del Curso [Deep Learning de A a la Z: Redes Neuronales al Completo](https://cursos.frogamesformacion.com/courses/deep-learning-az)
+## Creado por [Kirill Eremenko](https://www.udemy.com/user/kirilleremenko/) y [Hadelin de Ponteves](https://www.udemy.com/user/hadelin-de-ponteves/)
+## Traducido al español por [Juan Gabriel Gomila Salas](https://www.udemy.com/user/juangabriel2)
+
+# Actualizado en Agosto de 2023
+
+En la estructura del proyecto encontrarás tres carpetas:
+- Additional Materials: con las transparencias y slides usados en las clases de teoría del curso
+- Original: los ficheros de Python en formato script .py originales del curso, con los que se grabaron las clases
+- Update: ficheros de Python y también Jupyter Notebook actualizados en Agosto de 2023.
+
+De este modo podrás combinar lo que ves en los vídeos con el código en la última versión para siempre tener el curso 100% actualizado. También te hemos preparado el código directamente en Google Colab por si prefieres seguirlo online sin necesidad de instalar Python en tu ordenador. Puedes acceder a la carpeta de materiales de Colab [desde aquí](https://drive.google.com/drive/folders/1YmMQL5TNmMTV5xK2IK4R8u9Dzv5jCwrc?usp=share_link)
+
+---
 
 
 La inteligencia artificial está creciendo exponencialmente, sin lugar a dudas. Los vehículos que se conducen por sí mismos están recorriendo millones de kilómetros, IBM Watson está diagnosticando a pacientes mejor que ejércitos de médicos y el AlphaGo de Google Deepmind venció al campeón mundial de Go - un juego en el que la intuición juega un papel clave.
@@ -30,17 +42,12 @@ Con nuestras clases de intuición estarás seguro de que entiendes todas las té
 
 Dentro de esta clase trabajaremos en conjuntos de datos del mundo real, para resolver problemas de negocios del día a día (Definitivamente no los aburridos conjuntos de datos de clasificación de iris o dígitos que vemos en todos los cursos). Aquí, trabajaremos en seis desafíos del mundo real:
 
-Redes Neurales Artificiales para resolver un problema de pérdida de clientes (Customer Churn)
-
-Redes neuronales convolucionales para el reconocimiento de imágenes
-
-Redes neuronales recurrentes para predecir los precios de las acciones
-
-Mapas auto-organizados para investigar el fraude
-
-Máquinas de Boltzmann para crear un Sistema de Recomendaciones
-
-Los AutoEncoders apilados* para enfrentarnos al reto por el premio del millón de dólares de Netflix
+- Redes Neurales Artificiales para resolver un problema de pérdida de clientes (Customer Churn)
+- Redes neuronales convolucionales para el reconocimiento de imágenes
+- Redes neuronales recurrentes para predecir los precios de las acciones
+- Mapas auto-organizados para investigar el fraude
+- Máquinas de Boltzmann para crear un Sistema de Recomendaciones
+- Los AutoEncoders apilados* para enfrentarnos al reto por el premio del millón de dólares de Netflix
 
 *Los AutoEncoders apilados son una nueva técnica del Deep Learning que hace un par de años aun no existía. Hasta ahora no hemos visto este método explicado en ningún otro lugar con suficiente profundidad.
 
@@ -156,6 +163,6 @@ E incluso podrás aplicarlo a ti mismo o a tus amigos. La lista de películas se
 
 En conclusión, este es un programa de formación muy emocionante, lleno de tutoriales de intuición, ejercicios prácticos y casos de estudio del mundo real.
 
-Estamos súper entusiasmados con el Deep Learning y esperamos verte pronto en clases.
+Estamos súper entusiasmados con el Deep Learning y esperamos verte pronto en clases. Recuerda que puedes apuntarte al curso [Deep Learning de A a la Z: Redes Neuronales al Completo](https://cursos.frogamesformacion.com/courses/deep-learning-az) con descuento y soporte de los instructores solamente en Frogames Formación
 
 Juan Gabriel, Kirill y Hadelin
