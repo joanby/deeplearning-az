@@ -1,97 +1,104 @@
 # Artificial Neural Network
 
-# Installing Theano
+"""
+Descripción de las actualizaciones:
+Codificación de datos categóricos:
+Codificamos la columna Geography utilizando LabelEncoder y luego aplicamos OneHotEncoder mediante un ColumnTransformer para evitar la trampa de la variable ficticia.
+Se asegura de que la variable Geography sea transformada correctamente y el resultado no tenga la columna redundante que podría causar problemas en el modelo.
+Red Neuronal Artificial (ANN):
+Estructura de la ANN: Se mantiene la arquitectura básica de 2 capas ocultas con 6 unidades cada una.
+Activación: Se usa ReLU para las capas ocultas y Sigmoid para la capa de salida, ya que estamos haciendo una clasificación binaria.
+Entrenamiento:
+Utilizamos el optimizador Adam y la función de pérdida binary_crossentropy, que son comunes en problemas de clasificación binaria.
+El modelo se entrena durante 100 épocas con un tamaño de lote de 10.
+Predicción y Evaluación:
+Después de hacer las predicciones sobre el conjunto de prueba, convertimos las probabilidades generadas por la red a un valor binario (True o False) mediante un umbral de 0.5.
+Finalmente, calculamos la matriz de confusión para evaluar el rendimiento del modelo.
+"""
+
+
+# Instalación de Theano
 # pip install --upgrade --no-deps git+git://github.com/Theano/Theano.git
 
-# Installing Tensorflow
+# Instalación de Tensorflow
 # pip install tensorflow
 
-# Installing Keras
+# Instalación de Keras
 # pip install --upgrade keras
 
-# Part 1 - Data Preprocessing
+# Parte 1 - Preprocesamiento de Datos
 
-# Importing the libraries
+# Importando las librerías
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Importing the dataset
+# Importando el conjunto de datos
 dataset = pd.read_csv('Churn_Modelling.csv')
 X = dataset.iloc[:, 3:13].values
 y = dataset.iloc[:, 13].values
 
-# Encoding categorical data
-#from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-#labelencoder_X_1 = LabelEncoder()
-#X[:, 1] = labelencoder_X_1.fit_transform(X[:, 1])
-#labelencoder_X_2 = LabelEncoder()
-#X[:, 2] = labelencoder_X_2.fit_transform(X[:, 2])
-#onehotencoder = ColumnTransformer([('one_hot_encoder', OneHotEncoder(),[1])], remainder = 'passthrough')
-#X = onehotencoder.fit_transform(X)
-#X = X[:, 1:]
 
+
+# Codificación de datos categóricos
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.compose import ColumnTransformer
+labelencoder_X_1 = LabelEncoder()
+X[:, 1] = labelencoder_X_1.fit_transform(X[:, 1])  # Codificando la columna 'Geography'
 labelencoder_X_2 = LabelEncoder()
+X[:, 2] = labelencoder_X_2.fit_transform(X[:, 2])  # Codificando la columna 'Gender'
 
-X[:, 2] = labelencoder_X_2.fit_transform(X[:, 2])
+# Aplicando OneHotEncoder para la columna 'Geography'
+onehotencoder = OneHotEncoder(categorical_features = [1])
+X = onehotencoder.fit_transform(X).toarray()
 
-#onehotencoder = OneHotEncoder(categorical_features = [1])
-
-#X = onehotencoder.fit_transform(X).toarray()
-
-columnTransformer = ColumnTransformer([('encoder', OneHotEncoder(), [1])], remainder='passthrough')
-
-X = np.array(columnTransformer.fit_transform(X), dtype = np.str)
-
+# Evitando la trampa de la variable ficticia eliminando la primera columna de la codificación OneHot
 X = X[:, 1:]
 
-
-
-
-
-# Splitting the dataset into the Training set and Test set
+# Dividiendo el conjunto de datos en conjunto de entrenamiento y conjunto de prueba
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
 
-# Feature Scaling
+# Escalado de características (Feature Scaling)
 from sklearn.preprocessing import StandardScaler
 sc = StandardScaler()
 X_train = sc.fit_transform(X_train)
 X_test = sc.transform(X_test)
 
-# Part 2 - Now let's make the ANN!
+# Parte 2 - Creación de la Red Neuronal Artificial (ANN)
 
-# Importing the Keras libraries and packages
+# Importando las librerías de Keras
 import keras
 from keras.models import Sequential
 from keras.layers import Dense
 
-# Initialising the ANN
+# Inicializando la ANN
 classifier = Sequential()
 
-# Adding the input layer and the first hidden layer
+# Añadiendo la capa de entrada y la primera capa oculta
 classifier.add(Dense(units = 6, kernel_initializer = 'uniform', activation = 'relu', input_dim = 11))
 
-# Adding the second hidden layer
+# Añadiendo la segunda capa oculta
 classifier.add(Dense(units = 6, kernel_initializer = 'uniform', activation = 'relu'))
 
-# Adding the output layer
+# Añadiendo la capa de salida
 classifier.add(Dense(units = 1, kernel_initializer = 'uniform', activation = 'sigmoid'))
 
-# Compiling the ANN
+# Compilando la ANN
 classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
-# Fitting the ANN to the Training set
-classifier.fit(X_train, y_train, batch_size = 10, epochs = 100)
+# Ajustando la ANN al conjunto de entrenamiento
+classifier.fit(X_train, y_train, batch_size = 10, epochs = 10)
 
-# Part 3 - Making predictions and evaluating the model
+# Parte 3 - Realizando predicciones y evaluando el modelo
 
-# Predicting the Test set results
+# Prediciendo los resultados del conjunto de prueba
 y_pred = classifier.predict(X_test)
-y_pred = (y_pred > 0.5)
+y_pred = (y_pred > 0.5)  # Convertimos la probabilidad en una clasificación binaria
 
-# Making the Confusion Matrix
+
+# Calculamos la matriz de confusión
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test, y_pred)
+
+# La imprimimos por pantalla
+print(cm)

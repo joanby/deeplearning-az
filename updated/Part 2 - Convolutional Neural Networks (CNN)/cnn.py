@@ -1,69 +1,74 @@
-# Convolutional Neural Network
+# Convolutional Neural Network (Red Neuronal Convolucional)
 
-# Installing Theano
+# Instalación de Theano
 # pip install --upgrade --no-deps git+git://github.com/Theano/Theano.git
 
-# Installing Tensorflow
+# Instalación de Tensorflow
 # pip install tensorflow
 
-# Installing Keras
+# Instalación de Keras
 # pip install --upgrade keras
 
-# Part 1 - Building the CNN
+# Parte 1 - Construcción de la CNN
 
-# Importing the Keras libraries and packages
+# Importando las librerías de Keras
 from keras.models import Sequential
 from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Dense
 
-# Initialising the CNN
+# Inicializando la CNN
 classifier = Sequential()
 
-# Step 1 - Convolution
-classifier.add(Conv2D(32, (3, 3), input_shape = (64, 64, 3), activation = 'relu'))
+# Paso 1 - Convolución
+classifier.add(Conv2D(32, (3, 3), input_shape = (64, 64, 3), activation = 'relu'))  # Capa convolucional
 
-# Step 2 - Pooling
-classifier.add(MaxPooling2D(pool_size = (2, 2)))
+# Paso 2 - Pooling
+classifier.add(MaxPooling2D(pool_size = (2, 2)))  # Capa de pooling
 
-# Adding a second convolutional layer
-classifier.add(Conv2D(32, (3, 3), activation = 'relu'))
-classifier.add(MaxPooling2D(pool_size = (2, 2)))
+# Añadiendo una segunda capa convolucional
+classifier.add(Conv2D(32, (3, 3), activation = 'relu'))  # Segunda capa convolucional
+classifier.add(MaxPooling2D(pool_size = (2, 2)))  # Capa de pooling
 
-# Step 3 - Flattening
-classifier.add(Flatten())
+# Paso 3 - Aplanamiento (Flattening)
+classifier.add(Flatten())  # Aplanando las características para alimentar la red neuronal densa
 
-# Step 4 - Full connection
-classifier.add(Dense(units = 128, activation = 'relu'))
-classifier.add(Dense(units = 1, activation = 'sigmoid'))
+# Paso 4 - Conexión total (Full Connection)
+classifier.add(Dense(units = 128, activation = 'relu'))  # Capa densa con 128 unidades
+classifier.add(Dense(units = 1, activation = 'sigmoid'))  # Capa de salida con 1 unidad (binaria)
 
-# Compiling the CNN
+# Compilando la CNN
 classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
-# Part 2 - Fitting the CNN to the images
+# Parte 2 - Ajustando la CNN a las imágenes
 
 from keras.preprocessing.image import ImageDataGenerator
 
-train_datagen = ImageDataGenerator(rescale = 1./255,
-                                   shear_range = 0.2,
-                                   zoom_range = 0.2,
-                                   horizontal_flip = True)
+# Preprocesamiento de las imágenes de entrenamiento
+train_datagen = ImageDataGenerator(rescale = 1./255,  # Normalizando las imágenes
+                                   shear_range = 0.2,  # Aplicando transformación de corte
+                                   zoom_range = 0.2,  # Aplicando aumento por zoom
+                                   horizontal_flip = True)  # Aplicando volteo horizontal aleatorio
 
-test_datagen = ImageDataGenerator(rescale = 1./255)
+# Preprocesamiento de las imágenes de prueba
+test_datagen = ImageDataGenerator(rescale = 1./255)  # Normalizando las imágenes de prueba
 
-training_set = train_datagen.flow_from_directory('dataset/training_set',
-                                                 target_size = (64, 64),
-                                                 batch_size = 32,
-                                                 class_mode = 'binary')
+# Cargando el conjunto de datos de entrenamiento
+training_set = train_datagen.flow_from_directory('dataset/training_set',  # Ruta del conjunto de entrenamiento
+                                                 target_size = (64, 64),  # Tamaño de las imágenes
+                                                 batch_size = 32,  # Tamaño de lote
+                                                 class_mode = 'binary')  # Clasificación binaria (dos clases)
 
-test_set = test_datagen.flow_from_directory('dataset/test_set',
-                                            target_size = (64, 64),
-                                            batch_size = 32,
-                                            class_mode = 'binary')
+# Cargando el conjunto de datos de prueba
+test_set = test_datagen.flow_from_directory('dataset/test_set',  # Ruta del conjunto de prueba
+                                            target_size = (64, 64),  # Tamaño de las imágenes
+                                            batch_size = 32,  # Tamaño de lote
+                                            class_mode = 'binary')  # Clasificación binaria
 
-classifier.fit_generator(training_set,
-                         steps_per_epoch = 8000,
-                         epochs = 25,
-                         validation_data = test_set,
-                         validation_steps = 2000)
+# Ajustando la CNN al conjunto de entrenamiento
+classifier.fit_generator(training_set,  # Entrenando la CNN
+                         steps_per_epoch = 250,  # Número de pasos por cada época steps_per_epoch * batch_size = training_set
+                         epochs = 25,  # Número de épocas
+                         validation_data = test_set,  # Conjunto de validación
+                         validation_steps = 2000)  # Número de pasos de validación
