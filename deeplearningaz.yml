@@ -8,6 +8,7 @@ dependencies:
   - matplotlib
   - scikit-learn
   - jupyter
+  - spyder
   - pytorch
   - pip
   - pip:
