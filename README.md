@@ -3,15 +3,62 @@
 ## Creado por [Kirill Eremenko](https://www.udemy.com/user/kirilleremenko/) y [Hadelin de Ponteves](https://www.udemy.com/user/hadelin-de-ponteves/)  
 ## Traducido al español por [Juan Gabriel Gomila Salas](https://www.udemy.com/user/juangabriel2)
 
-**Última actualización: Enero de 2025**  
+**Última actualización**: Agosto de 2026
 
-En este repositorio encontrarás tres carpetas esenciales para sacar el máximo provecho del curso:
+---
 
-- **Additional Materials:** Transparencias y slides de las clases teóricas.
-- **Original:** Archivos de Python (.py) originales usados en las grabaciones del curso.
-- **Update:** Versiones actualizadas de los scripts en Python y Jupyter Notebook.
+## 🆕 Esta es la rama `update-2026`
 
-Además, si prefieres trabajar directamente online, puedes acceder al código actualizado en [Google Colab](https://drive.google.com/drive/folders/1YmMQL5TNmMTV5xK2IK4R8u9Dzv5jCwrc?usp=share_link).
+Estás en la versión del código **puesta al día y verificada en agosto de
+2026**, con Python 3.13 y las librerías tal como están hoy (numpy 2,
+scikit-learn 1.9, TensorFlow/Keras 3...). El curso se grabó en 2020, en
+Spyder, sobre los ficheros `.py`; algunas librerías han cambiado de
+comportamiento desde entonces, y aquí el código vuelve a ejecutarse de
+principio a fin.
+
+**Qué encontrarás — y qué no — en esta rama:**
+
+- El código **Python** (`.py` y `.ipynb`), puesto al día y en la raíz del
+  repositorio, organizado por partes del curso igual que siempre
+  (`Part 1 - Artificial Neural Networks (ANN)`, `Part 2 - Convolutional
+  Neural Networks (CNN)`, etc.).
+- **No hay carpetas `original/` ni `updated/`.** Esta rama es plana: lo que
+  ves en cada `Part X` es directamente el código que necesitas.
+- **`original/` no ha desaparecido: vive en la rama
+  [`master`](https://github.com/joanby/deeplearning-az/tree/master)**, tal
+  como se grabó el vídeo. Si quieres ver el código exactamente como lo
+  teclea el profesor en pantalla, es ahí donde está.
+- **Los 7 notebooks de Colab también están aquí, arreglados y
+  ejecutables** — tanto en local como en el propio Google Colab. Llevaban
+  rotos desde 2023 por un problema del propio repositorio, no del Deep
+  Learning; el detalle completo está en `CAMBIOS-2026.md`.
+- `additional materials/` (las transparencias de teoría) se mantiene igual
+  que en `master`.
+
+**Qué ha cambiado exactamente y por qué:** todo está explicado, causa por
+causa y con el porqué de cada librería, en
+[`CAMBIOS-2026.md`](CAMBIOS-2026.md). Incluye también qué partes pueden
+verse distintas al vídeo y qué no se ha llegado a ejecutar entero (el
+entrenamiento completo de la CNN, el autocodificador y la rejilla del
+`GridSearchCV`, los tres por coste de cómputo, no por estar rotos). Léelo
+antes de reportar como error algo que ya está documentado ahí.
+
+---
+
+## 🐍 Cómo montar el entorno
+
+El curso usa un entorno conda. Con
+[Miniforge](https://github.com/conda-forge/miniforge) o Anaconda instalado:
+
+```bash
+conda env create -f deeplearningaz.yml
+conda activate deeplearningaz
+```
+
+Esto te deja Python 3.13 con numpy, pandas, matplotlib, scikit-learn, scipy,
+PyTorch y Jupyter, más TensorFlow y `scikeras` (por pip). Las versiones
+exactas con las que se ha verificado esta rama están en la tabla de
+[`CAMBIOS-2026.md`](CAMBIOS-2026.md#versiones-con-las-que-se-ha-verificado).
 
 ---
 
