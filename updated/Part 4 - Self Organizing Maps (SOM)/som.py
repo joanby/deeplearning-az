@@ -17,7 +17,7 @@ X = sc.fit_transform(X)  # Aplicando el escalado a las características
 
 # Entrenando el SOM (Mapa Auto-Organizado)
 from minisom import MiniSom
-som = MiniSom(x = 10, y = 10, input_len = 15, sigma = 1.0, learning_rate = 0.5)  # Inicializando el SOM
+som = MiniSom(x = 10, y = 10, input_len = 15, sigma = 1.0, learning_rate = 0.5, random_seed = 33)  # Inicializando el SOM
 som.random_weights_init(X)  # Inicializando los pesos de manera aleatoria
 som.train_random(data = X, num_iteration = 100)  # Entrenando el SOM con 100 iteraciones
 

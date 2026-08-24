@@ -43,40 +43,44 @@ classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = [
 
 # Part 2 - Fitting the CNN to the images
 
-from keras.preprocessing.image import ImageDataGenerator
+import tensorflow as tf
 
-train_datagen = ImageDataGenerator(rescale = 1./255,
-                                   shear_range = 0.2,
-                                   zoom_range = 0.2,
-                                   horizontal_flip = True)
+# Rescaling and data augmentation: ImageDataGenerator was removed in Keras 3;
+# rescale/shear_range/zoom_range/horizontal_flip are now layers applied to
+# each batch instead of parameters of a generator
+rescale = tf.keras.layers.Rescaling(1./255)
+data_augmentation = tf.keras.Sequential([
+    tf.keras.layers.RandomShear(0.2),
+    tf.keras.layers.RandomZoom(0.2),
+    tf.keras.layers.RandomFlip('horizontal'),
+])
 
-test_datagen = ImageDataGenerator(rescale = 1./255)
+training_set = tf.keras.utils.image_dataset_from_directory('dataset/training_set',
+                                                            image_size = (64, 64),
+                                                            batch_size = 32,
+                                                            label_mode = 'binary')
+class_names = training_set.class_names  # saved before augmentation: a mapped dataset no longer exposes class_names
+training_set = training_set.map(lambda x, y: (data_augmentation(rescale(x), training = True), y))
 
-training_set = train_datagen.flow_from_directory('dataset/training_set',
-                                                 target_size = (64, 64),
-                                                 batch_size = 32,
-                                                 class_mode = 'binary')
+test_set = tf.keras.utils.image_dataset_from_directory('dataset/test_set',
+                                                        image_size = (64, 64),
+                                                        batch_size = 32,
+                                                        label_mode = 'binary')
+test_set = test_set.map(lambda x, y: (rescale(x), y))
 
-test_set = test_datagen.flow_from_directory('dataset/test_set',
-                                            target_size = (64, 64),
-                                            batch_size = 32,
-                                            class_mode = 'binary')
-
-classifier.fit_generator(training_set,
-                         steps_per_epoch = 8000,
-                         epochs = 25,
-                         validation_data = test_set,
-                         validation_steps = 2000)
+classifier.fit(x = training_set,
+              validation_data = test_set,
+              epochs = 25)
 
 # Part 3 - Making new predictions
 
 import numpy as np
-from keras.preprocessing import image
+import keras.utils as image
 test_image = image.load_img('dataset/single_prediction/cat_or_dog_1.jpg', target_size = (64, 64))
 test_image = image.img_to_array(test_image)
 test_image = np.expand_dims(test_image, axis = 0)
 result = classifier.predict(test_image)
-training_set.class_indices
+class_names  # equivalent to the old training_set.class_indices
 if result[0][0] == 1:
     prediction = 'dog'
 else:

@@ -43,32 +43,33 @@ classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = [
 
 # Parte 2 - Ajustando la CNN a las imágenes
 
-from keras.preprocessing.image import ImageDataGenerator
+import tensorflow as tf
 
-# Preprocesamiento de las imágenes de entrenamiento
-train_datagen = ImageDataGenerator(rescale = 1./255,  # Normalizando las imágenes
-                                   shear_range = 0.2,  # Aplicando transformación de corte
-                                   zoom_range = 0.2,  # Aplicando aumento por zoom
-                                   horizontal_flip = True)  # Aplicando volteo horizontal aleatorio
-
-# Preprocesamiento de las imágenes de prueba
-test_datagen = ImageDataGenerator(rescale = 1./255)  # Normalizando las imágenes de prueba
+# Reescalado y aumento de datos: en Keras 3, ImageDataGenerator se eliminó;
+# rescale/shear_range/zoom_range/horizontal_flip pasan a ser capas que se
+# aplican a cada lote, en vez de parámetros de un generador
+rescale = tf.keras.layers.Rescaling(1./255)  # Normalizando las imágenes
+data_augmentation = tf.keras.Sequential([
+    tf.keras.layers.RandomShear(0.2),  # Aplicando transformación de corte
+    tf.keras.layers.RandomZoom(0.2),  # Aplicando aumento por zoom
+    tf.keras.layers.RandomFlip('horizontal'),  # Aplicando volteo horizontal aleatorio
+])
 
 # Cargando el conjunto de datos de entrenamiento
-training_set = train_datagen.flow_from_directory('dataset/training_set',  # Ruta del conjunto de entrenamiento
-                                                 target_size = (64, 64),  # Tamaño de las imágenes
-                                                 batch_size = 32,  # Tamaño de lote
-                                                 class_mode = 'binary')  # Clasificación binaria (dos clases)
+training_set = tf.keras.utils.image_dataset_from_directory('dataset/training_set',  # Ruta del conjunto de entrenamiento
+                                                            image_size = (64, 64),  # Tamaño de las imágenes
+                                                            batch_size = 32,  # Tamaño de lote
+                                                            label_mode = 'binary')  # Clasificación binaria (dos clases)
+training_set = training_set.map(lambda x, y: (data_augmentation(rescale(x), training = True), y))  # Solo el entrenamiento lleva aumento
 
 # Cargando el conjunto de datos de prueba
-test_set = test_datagen.flow_from_directory('dataset/test_set',  # Ruta del conjunto de prueba
-                                            target_size = (64, 64),  # Tamaño de las imágenes
-                                            batch_size = 32,  # Tamaño de lote
-                                            class_mode = 'binary')  # Clasificación binaria
+test_set = tf.keras.utils.image_dataset_from_directory('dataset/test_set',  # Ruta del conjunto de prueba
+                                                        image_size = (64, 64),  # Tamaño de las imágenes
+                                                        batch_size = 32,  # Tamaño de lote
+                                                        label_mode = 'binary')  # Clasificación binaria
+test_set = test_set.map(lambda x, y: (rescale(x), y))  # La prueba solo se reescala
 
 # Ajustando la CNN al conjunto de entrenamiento
-classifier.fit_generator(training_set,  # Entrenando la CNN
-                         steps_per_epoch = 250,  # Número de pasos por cada época steps_per_epoch * batch_size = training_set
-                         epochs = 25,  # Número de épocas
-                         validation_data = test_set,  # Conjunto de validación
-                         validation_steps = 2000)  # Número de pasos de validación
+classifier.fit(x = training_set,  # Entrenando la CNN
+              validation_data = test_set,  # Conjunto de validación
+              epochs = 25)  # Número de épocas

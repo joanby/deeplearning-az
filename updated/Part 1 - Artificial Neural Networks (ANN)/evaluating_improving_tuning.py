@@ -23,14 +23,15 @@ y = dataset.iloc[:, 13].values
 
 # Codificación de datos categóricos
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.compose import ColumnTransformer
 labelencoder_X_1 = LabelEncoder()
 X[:, 1] = labelencoder_X_1.fit_transform(X[:, 1])  # Codificando la columna 'Geography'
 labelencoder_X_2 = LabelEncoder()
 X[:, 2] = labelencoder_X_2.fit_transform(X[:, 2])  # Codificando la columna 'Gender'
 
-# Aplicando OneHotEncoder para la columna 'Geography'
-onehotencoder = OneHotEncoder(categorical_features = [1])
-X = onehotencoder.fit_transform(X).toarray()
+# Aplicando OneHotEncoder para la columna 'Geography' mediante un ColumnTransformer
+onehotencoder = ColumnTransformer([('encoder', OneHotEncoder(), [1])], remainder = 'passthrough')
+X = onehotencoder.fit_transform(X)
 
 # Evitando la trampa de la variable ficticia eliminando la primera columna de la codificación OneHot
 X = X[:, 1:]
@@ -101,7 +102,7 @@ cm = confusion_matrix(y_test, y_pred)
 # Parte 4 - Evaluando, Mejorando y Ajustando la ANN
 
 # Evaluando la ANN
-from keras.wrappers.scikit_learn import KerasClassifier
+from scikeras.wrappers import KerasClassifier
 from sklearn.model_selection import cross_val_score
 from keras.models import Sequential
 from keras.layers import Dense
@@ -115,7 +116,7 @@ def build_classifier():
     classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
     return classifier
 
-classifier = KerasClassifier(build_fn = build_classifier, batch_size = 10, epochs = 100)
+classifier = KerasClassifier(model = build_classifier, batch_size = 10, epochs = 100)
 
 # Evaluación con validación cruzada
 accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = -1)
@@ -126,7 +127,7 @@ variance = accuracies.std()
 # Regularización Dropout para reducir el sobreajuste si es necesario
 
 # Ajustando la ANN
-from keras.wrappers.scikit_learn import KerasClassifier
+from scikeras.wrappers import KerasClassifier
 from sklearn.model_selection import GridSearchCV
 from keras.models import Sequential
 from keras.layers import Dense
@@ -140,12 +141,12 @@ def build_classifier(optimizer):
     classifier.compile(optimizer = optimizer, loss = 'binary_crossentropy', metrics = ['accuracy'])
     return classifier
 
-classifier = KerasClassifier(build_fn = build_classifier)
+classifier = KerasClassifier(model = build_classifier)
 
 # Definición de los parámetros para la búsqueda en cuadrícula
 parameters = {'batch_size': [25, 32],
               'epochs': [100, 500],
-              'optimizer': ['adam', 'rmsprop']}
+              'model__optimizer': ['adam', 'rmsprop']}
 grid_search = GridSearchCV(estimator = classifier,
                            param_grid = parameters,
                            scoring = 'accuracy',

@@ -46,10 +46,11 @@ X[:, 1:3] = imputer.transform(X[:, 1:3])  # Rellenado de valores faltantes
 # Codificación de datos categóricos
 # Codificación de la variable independiente
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.compose import ColumnTransformer
 labelencoder_X = LabelEncoder()
 X[:, 0] = labelencoder_X.fit_transform(X[:, 0])  # Codificando la primera columna
-onehotencoder = OneHotEncoder(categorical_features = [0])
-X = onehotencoder.fit_transform(X).toarray()  # Aplicación de codificación OneHot
+onehotencoder = ColumnTransformer([('encoder', OneHotEncoder(), [0])], remainder = 'passthrough')
+X = onehotencoder.fit_transform(X)  # Aplicación de codificación OneHot
 
 # Codificación de la variable dependiente
 labelencoder_y = LabelEncoder()
