@@ -15,7 +15,7 @@ Codificación de datos categóricos:
 Codificación de la variable independiente:
 Se utiliza LabelEncoder para convertir la primera columna de X (que contiene datos categóricos) en valores numéricos. LabelEncoder asigna un número entero para cada categoría distinta.
 Luego, se aplica OneHotEncoder para convertir esas categorías en variables binarias (0 o 1) usando codificación One-Hot. Esto es necesario para modelos como regresión logística, que no pueden tratar datos categóricos directamente.
-El parámetro categorical_features = [0] indica que la primera columna es una variable categórica que será transformada.
+La columna se selecciona hoy con un ColumnTransformer que envuelve al OneHotEncoder, en lugar del parámetro categorical_features (retirado de scikit-learn).
 Codificación de la variable dependiente:
 Se utiliza también LabelEncoder para convertir la variable dependiente (y) en valores numéricos, en caso de que esta también tenga datos categóricos. Esto se realiza para poder utilizarla en modelos que requieren valores numéricos.
 Resultados Esperados:

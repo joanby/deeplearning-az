@@ -55,9 +55,11 @@ conda env create -f deeplearningaz.yml
 conda activate deeplearningaz
 ```
 
-Esto te deja Python 3.13 con numpy, pandas, matplotlib, scikit-learn, scipy,
-PyTorch y Jupyter, más TensorFlow y `scikeras` (por pip). Las versiones
-exactas con las que se ha verificado esta rama están en la tabla de
+Esto te deja Python 3.13 con numpy, pandas, matplotlib, scikit-learn,
+Jupyter, Spyder (el mismo editor del curso) y PyTorch, más TensorFlow y
+`scikeras` (por pip). `scipy` también acaba instalado, como dependencia de
+scikit-learn, aunque el `.yml` no lo pida por nombre. Las versiones exactas
+con las que se ha verificado esta rama están en la tabla de
 [`CAMBIOS-2026.md`](CAMBIOS-2026.md#versiones-con-las-que-se-ha-verificado).
 
 ---

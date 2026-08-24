@@ -27,6 +27,7 @@ Verificado en **agosto de 2026**, en **macOS con Apple Silicon**:
 | tensorflow | 2.21.0 |
 | keras | 3.15.1 |
 | scikeras | 0.13.0 |
+| jupyter | 1.1.1 |
 
 `scikeras` no lo instalaba el curso original: es un paquete nuevo, de
 terceros, que hizo falta añadir — se explica en la causa 3 de más abajo.
@@ -52,13 +53,17 @@ columnas mixtas (texto y números). scikit-learn eliminó ese parámetro hace
 varias versiones: hoy esa selección de columna se hace por fuera, envolviendo
 el `OneHotEncoder` en un `ColumnTransformer`.
 
-**El detalle que merece contarse aparte.** Tres de estos cuatro ficheros
-llevaban, desde una revisión anterior del curso, un docstring en español que
-explicaba exactamente este arreglo —"aplicamos `OneHotEncoder` mediante un
-`ColumnTransformer` para evitar la trampa de la variable ficticia"— sin que
-el código de debajo lo aplicara nunca. El comentario llevaba tiempo diciendo
-la verdad y el código llevaba el mismo tiempo sin hacerle caso. Se ha hecho
-lo que el docstring ya prometía:
+**El detalle que merece contarse aparte.** Dos de estos cuatro ficheros
+(`ann.py` y `ann_homework_solution.py`) llevaban, desde una revisión anterior
+del curso, un docstring en español que explicaba exactamente este arreglo
+—"aplicamos `OneHotEncoder` mediante un `ColumnTransformer` para evitar la
+trampa de la variable ficticia"— sin que el código de debajo lo aplicara
+nunca. El comentario llevaba tiempo diciendo la verdad y el código llevaba
+el mismo tiempo sin hacerle caso. Se ha hecho lo que el docstring ya
+prometía. `categorical_data.py` tenía el problema contrario: su comentario
+sí describía el código viejo (`categorical_features = [0]`) y se ha quedado
+sin actualizar al aplicar este mismo arreglo — ya corregido para que
+describa el `ColumnTransformer` de arriba.
 
 ```python
 from sklearn.compose import ColumnTransformer
@@ -177,10 +182,23 @@ a encontrar el mismo patrón en el mismo punto.
   en el vídeo.
 - `class_indices` (un diccionario) pasa a ser `class_names` (una lista),
   capturado antes del `.map()`: el nuevo pipeline no expone el diccionario
-  de siempre.
-- La arquitectura de la CNN, su compilación, el entrenamiento con
-  `epochs = 25` y la predicción final sobre una imagen suelta son idénticos
-  al vídeo. Ahí no hay nada que Keras 3 haya tocado.
+  de siempre. Esto solo afecta a `cnn_homework_solution.py` y `CNN.ipynb`,
+  los dos que hacen la predicción sobre una imagen suelta; `cnn.py` no
+  llega a esa línea, así que no le toca.
+- La arquitectura de la CNN y su compilación no se han tocado. El
+  entrenamiento con `epochs = 25` tampoco cambia el resultado, pero **sí
+  cambia cómo se teclea**: `classifier.fit_generator(training_set,
+  steps_per_epoch = 250, epochs = 25, validation_data = test_set,
+  validation_steps = 2000)` pasa a `classifier.fit(x = training_set,
+  validation_data = test_set, epochs = 25)`. Keras 3 retiró
+  `fit_generator` — `fit` ya sabe distinguir un `tf.data.Dataset` de un
+  array — y `steps_per_epoch`/`validation_steps` desaparecen porque ese
+  `Dataset` conoce su propia longitud: son dos argumentos menos que
+  tecleabas en el vídeo.
+- La predicción final sobre una imagen suelta tampoco es línea a línea la
+  misma: `from keras.preprocessing import image` pasa a `import keras.utils
+  as image`, porque Keras 3 movió `load_img` a ese módulo. Es el import con
+  el que arranca la Parte 3 de la sección, justo antes de la predicción.
 
 Dos valores del aumento de datos no tienen un equivalente exacto entre la
 clase vieja y las capas nuevas — se ha mantenido el número que pide el
@@ -243,7 +261,7 @@ montarse Drive con éxito.
 
 Los notebooks también recibieron los arreglos que les tocaban de las causas
 de arriba, donde aplicaban: `random_seed` en los dos que usan `MiniSom` (ver
-causa 6), y el import a `scikeras` con sus tres claves en `ann.ipynb` (causa
+causa 7), y el import a `scikeras` con sus tres claves en `ann.ipynb` (causa
 3). `CNN.ipynb` recibió la misma reescritura que su `.py` gemelo (causa 4).
 
 ### 6. Faltaban dos CSV en `Part 1`, nunca copiados al reorganizar
@@ -258,8 +276,8 @@ ya se ejecutan sin tocar una línea de código.
 
 ### 7. `som.py` nunca fue reproducible, ni en 2020
 
-**Afecta a:** `som.py` y `mega_case_study.ipynb`, en `Part 4 - Self
-Organizing Maps (SOM)`.
+**Afecta a:** `som.py`, `som.ipynb` y `mega_case_study.ipynb`, en `Part 4 -
+Self Organizing Maps (SOM)`.
 
 Esta es la más importante de contar bien, porque no es un fallo con
 mensaje de error: el fichero se ejecutaba, terminaba con éxito, y a veces
@@ -297,8 +315,9 @@ código nunca dio ninguna pista de que dependiera de un sorteo.
 más abajo— elegida específicamente para que las celdas que ganan sean
 las mismas que el alumno ve señalar en el vídeo:
 
-- `som.py`: `random_seed = 33` (la celda `(6,1)` sale con 13 muestras y la
-  `(7,8)` con 19 — margen cómodo, no un empate al límite).
+- `som.py` y `som.ipynb` (mismo dato, es el notebook gemelo):
+  `random_seed = 33` (la celda `(6,1)` sale con 13 muestras y la `(7,8)`
+  con 19 — margen cómodo, no un empate al límite).
 - `mega_case_study.ipynb`: usa las mismas ideas pero con datos y celdas de
   fraude propios de esa lección (`(3,1)`/`(2,5)`), así que necesitaba su
   propia búsqueda. Elegida `random_seed = 17` (18 y 23 muestras
@@ -342,23 +361,36 @@ en el sorteo.
 - **Sección CNN** (`cnn.py`, `cnn_homework_solution.py`, `CNN.ipynb`): como
   se explica en la causa 4, el bloque de carga y aumento de datos está
   reescrito. La cizalladura y el zoom del aumento de datos se ven algo más
-  fuertes que en el vídeo, por el motivo técnico ya explicado ahí.
-- **`som.py` y `mega_case_study.ipynb`**: ahora llevan un `random_seed` en
-  la llamada a `MiniSom` que el vídeo no teclea. El efecto es justo el
-  contrario de "distinto al vídeo": es lo que hace que el mapa señale las
-  mismas celdas de fraude que ves elegir en pantalla, en vez de un mapa
-  aleatorio distinto cada vez.
+  fuertes que en el vídeo, por el motivo técnico ya explicado ahí. Además,
+  `fit_generator(...)` pasa a `fit(...)` (con `steps_per_epoch` y
+  `validation_steps` fuera) y, en la predicción, `from keras.preprocessing
+  import image` pasa a `import keras.utils as image`. Son dos líneas más que
+  tecleas en el vídeo y que aquí verás distintas.
+- **`som.py`, `som.ipynb` y `mega_case_study.ipynb`**: ahora llevan un
+  `random_seed` en la llamada a `MiniSom` que el vídeo no teclea. El efecto
+  es justo el contrario de "distinto al vídeo": es lo que hace que el mapa
+  señale las mismas celdas de fraude que ves elegir en pantalla, en vez de
+  un mapa aleatorio distinto cada vez.
 - **Los notebooks en general** (`ann.ipynb`, `CNN.ipynb`, `RNN.ipynb`,
   `som.ipynb`, `mega_case_study.ipynb`, `rbm.ipynb`, `ae.ipynb`): no
   aparecen en ningún vídeo — el curso se grabó en Spyder sobre los `.py`—
   así que no hay una pantalla de referencia con la que compararlos. Se han
   arreglado para que funcionen tanto en local como en Colab, con el mismo
   contenido que su `.py` gemelo cuando existe uno.
+- **Al pasar de la Parte 3 a la Parte 5, reinicia la consola de Spyder.**
+  Las Partes 1-3 usan Keras/TensorFlow y las Partes 5-6 usan PyTorch, y
+  `import torch` + `import tensorflow` en el mismo proceso de Python
+  segfaultan (`exit 139`, sin traceback, en cualquier orden de import). No
+  es un fallo de tu código: es que las dos librerías no conviven en la
+  misma consola. Una consola nueva por parte lo resuelve.
 
 ## Lo que NO se ha ejecutado
 
-De los 19 ficheros de esta rama, **12 se ejecutan enteros y 7 quedan
-omitidos por coste de cómputo**:
+Esta rama tiene 19 ficheros de Python, pero uno de ellos, `minisom.py`, es
+una librería de terceros vendorizada que solo define clases — no es código
+del curso. De los **18 ficheros del curso, 11 se ejecutan enteros y 7
+quedan omitidos por coste de cómputo** (`minisom.py` se ejecuta sin problema,
+como es de esperar en un fichero que solo define clases):
 
 - La **CNN** (`cnn.py`, `cnn_homework_solution.py`, `CNN.ipynb`): 25 épocas
   sobre 8.000 imágenes de entrenamiento.
@@ -382,15 +414,19 @@ Esto no es que este curso esté peor verificado que otros: Deep Learning es
 caro de ejecutar por naturaleza, mucho más que un modelo de regresión o de
 clustering. El curso hermano, *Machine Learning de A a la Z*, tuvo 2
 ficheros omitidos de 60 por este mismo motivo (una única CNN); aquí son 7
-de 19 porque casi todo el curso son redes que se entrenan durante minutos u
+de 18 porque casi todo el curso son redes que se entrenan durante minutos u
 horas por época, no segundos.
 
 ## Lo que sigue roto
 
-Nada. De los 19 ficheros de esta rama, los 12 que se ejecutan enteros
-terminan sin error, y los 7 omitidos por coste se han verificado con una
-versión reducida que confirma que el código corre de principio a fin. No
-queda ningún fichero sin revisar ni ningún error sin explicar.
+Nada, con una acotación honesta: de los 18 ficheros del curso, los 11 que
+se ejecutan enteros terminan sin error, y los 7 omitidos por coste se han
+verificado con una versión reducida que confirma que el código corre de
+principio a fin. Queda además
+`Part 5 - Boltzmann Machines (BM)/ml-1m/Train_Test_Set_Creation.R`, un
+script de R que nadie ha ejecutado como parte de esta actualización — no es
+Python y no lo cubre esta rama, pero tampoco queremos decir "no queda nada
+sin revisar" y dejarlo fuera.
 
 ---
 
